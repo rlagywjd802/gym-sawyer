@@ -133,7 +133,10 @@ class ToyEnv(SawyerEnv, Serializable):
 
         if self._active_task.is_success(obs, info):
             r += self._active_task.completion_bonus
-            done = self.next_task()
+            # edited for transition policy project
+            # done = self.next_task()
+            done = True
+            successful = True
 
         if self.is_success(obs, info):
             r += self._completion_bonus

@@ -30,9 +30,7 @@ TOYENV_COLLISION_WHITELIST = COLLISION_WHITELIST + [
     ("box_base", "peg"),
     ("box_lid", "peg"),
 
-    # Need to whitelist peg with gripper
-    ("r_gripper_l_finger", "peg"),
-    ("r_gripper_r_finger", "peg"),
+    # Need to whitelist peg with gripper tips
     ("r_gripper_l_finger_tip", "peg"),
     ("r_gripper_r_finger_tip", "peg"),
 ]
@@ -83,9 +81,7 @@ class ToyEnv(MujocoEnv, Serializable):
         # task config: Task space control + 1 box w/ lid and 1 peg
         elif self._xml_config == 'task':
             self._robot = robot or TaskSpaceSawyer(
-                self, randomize_start_jpos=randomize_start_jpos,
-                action_low=np.array([-0.05, -0.05, -0.05, -1.0]),
-                action_high=np.array([0.05, 0.05, 0.05, 1.0]))
+                self, randomize_start_jpos=randomize_start_jpos)
             self._world = world or ToyWorld(self, xml_config=self._xml_config)
         else:
             warnings.warn("Unknown ToyEnv xml_config: {}".format(
@@ -245,14 +241,11 @@ class ToyEnv(MujocoEnv, Serializable):
             'robot_obs': robot_obs,
             'world_obs': world_obs,
             'gripper_position': self._robot.gripper_position,
-            'gripper_base_position': self._robot.gripper_position,
             'gripper_state': self._robot.gripper_state,
             'grasped_peg': grasped_peg_obs,
             'hole_site': hole_site,
             'lid_joint_state': lid_joint_state,
-            'r_finger_tip': self.sim.data.get_body_xpos("r_gripper_r_finger_tip"),
-            'l_finger_tip': self.sim.data.get_body_xpos("r_gripper_l_finger_tip"),
-            'gripper_site': self.sim.data.get_site_xpos("gripper_site")
+            'gripper_base_position': self.sim.data.get_body_xpos('right_gripper_base'),
         }
 
         r = self.compute_reward(obs, info)

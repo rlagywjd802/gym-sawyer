@@ -1,3 +1,3 @@
-STEP_FREQ = 5
+STEP_FREQ = 1
 
 VICON_TOPICS = []
