@@ -52,14 +52,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt -y install \
   vim
 
 # TODO: REMOVE BEFORE MERGING
-RUN mkdir /root/ros_ws/src/get_task_srv
-COPY ./internal/temp/get_task_srv /root/ros_ws/src/get_task_srv
+# RUN mkdir /root/ros_ws/src/get_task_srv
+# COPY ./internal/temp/get_task_srv /root/ros_ws/src/get_task_srv
 
 RUN ["/bin/bash", "-c", \
   "cd ~/ros_ws/ && \
   ./intera.sh && \
-  source /opt/ros/kinetic/setup.bash && \
-  catkin_make --pkg get_task_srv"]
+  source /opt/ros/kinetic/setup.bash"]
+#  catkin_make --pkg get_task_srv"
 
 COPY internal/apriltag_config.yaml /root/ros_ws/src/apriltags2_ros/apriltags2_ros/config/
 COPY internal/apriltag_pointgrey.launch /root/ros_ws/src/apriltags2_ros/apriltags2_ros/launch/
@@ -75,4 +75,8 @@ RUN mkdir /root/data_collection
 RUN pwd
 COPY ./internal/temp/data_collection /root/data_collection
 
+
+# Hyojeong
+RUN mkdir /root/sawyer
+COPY internal/temp/sawyer /root/sawyer
 ENTRYPOINT ["/root/apriltag-entrypoint.sh"]
