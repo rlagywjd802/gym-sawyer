@@ -2,7 +2,6 @@ import gym
 import numpy as np
 
 from sawyer.garage.core import Serializable
-from sawyer.garage.misc.ext import get_seed
 
 
 class RosEnv(gym.Env, Serializable):
@@ -17,9 +16,8 @@ class RosEnv(gym.Env, Serializable):
         """
         Serializable.quick_init(self, locals())
 
-        np.random.RandomState(get_seed())
-
-        self._initial_setup()
+        if not simulated:
+            self._initial_setup()
 
     def initialize(self):
         # TODO (gh/74: Add initialize interface for robot)
