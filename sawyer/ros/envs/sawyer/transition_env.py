@@ -191,7 +191,8 @@ class TransitionEnv(SawyerEnv, Serializable):
 
     def has_peg(self):
         gripper_state = self._robot.gripper_state
-        if gripper_state != 0.0:
+        gripper_thereshold = -0.5
+        if gripper_state > gripper_thereshold:
             return False
 
         peg_pos = self._world.get_peg_pose().position
