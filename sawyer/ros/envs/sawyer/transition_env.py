@@ -255,6 +255,29 @@ class TransitionPickEnv(TransitionEnv, Serializable):
             'box': ob[4:11],
         }
 
+    def act(self, ob):
+        if len(ob.shape) > 1:
+            pass
+        else:
+            peg_position = ob[4:11]
+            
+            # move to peg position
+            peg_position[2] += 0.2
+            peg_joint = self._robot._limb.ik_request(peg_position, 'right_hand')
+            self._robot._limb.move_to_joint_positions(peg_joint)
+            
+            # go down
+            peg_position[2] -= 0.1
+            peg_joint = self._robot._limb.ik_request(peg_position, 'right_hand')
+            self._robot._limb.move_to_joint_positions(peg_joint)
+
+            # grip
+            self._robot._gripper.close()
+
+            # go up
+            peg_position[2] += 0.1
+            peg_joint = self._robot._limb.ik_request(peg_position, 'right_hand')
+            self._robot._limb.move_to_joint_positions(peg_joint)
 
 class TransitionPlaceEnv(TransitionEnv, Serializable):
     def __init__(self,
