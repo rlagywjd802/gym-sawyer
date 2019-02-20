@@ -281,6 +281,28 @@ class Sawyer(Robot):
         self._gripper.close()
         rospy.sleep(1.0)
 
+    def _move_to_target_position(self, target_pos):
+        if rospy.is_shutdown():
+            return
+        # ik_request returns valid joint positions if exists, 
+        # otherwise returns False.
+        cur_ori = np.array(self.gripper_pose['orientation'])
+        pose_msg = Pose()
+        pose_msg.position = Point(target_pos[0], target_pos[1], target_pos[2])
+        pose_msg.orientation = Quaternion(cur_ori[0], cur_ori[1], cur_ori[2], cur_ori[3])
+        joint_angles = self._limb.ik_request(pose_msg, "right_gripper_tip")
+        if joint_angles:
+            self._limb.move_to_joint_positions(joint_angles)
+        rospy.sleep(1.0)
+
+    def _gripper_open(self):
+        self._gripper.open()
+        rospy.sleep(1.0)
+
+    def _gripper_close(self):
+        self._gripper.close()
+        rospy.sleep(1.0)
+
     def _rescale_value(self, value, cur_min, cur_max, new_range_min, new_range_max):
         rescaled_value = (((new_range_max - new_range_min) * (
                             value - cur_min)) / (cur_max - cur_min)) + new_range_min

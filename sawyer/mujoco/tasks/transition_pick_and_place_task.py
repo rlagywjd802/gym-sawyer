@@ -66,7 +66,7 @@ class TransitionPlaceTask(ComposableTask):
         return self._completion_bonus
 
 
-class TransitionPlaceAndPlaceTask(ComposableTask):
+class TransitionPickAndPlaceTask(ComposableTask):
     """
     Task to pick up an object and place the object at a desired location.
 

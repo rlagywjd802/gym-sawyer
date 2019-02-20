@@ -51,7 +51,7 @@ class TransitionEnv(SawyerEnv, Serializable):
 
         SawyerEnv.__init__(self, simulated=simulated)
 
-        self._active_task = TransitionPickAndPlaceTask
+        self._active_task = TransitionPickAndPlaceTask()
         self.reward_type = []
         self.ob_shape = {"joint": [4], "box": [7], "goal": [3]}
         #self.ob_shape = {"joint": [4], "box": [7]}
@@ -71,12 +71,12 @@ class TransitionEnv(SawyerEnv, Serializable):
     @rate_limited(STEP_FREQ)
     def step(self, action):
         assert action.shape == self.action_space.shape
-        assert self._run
+        # assert self._run
 
         # Do the action
         self._robot.send_command(action)
         self._step += 1
-        obs = self.get_observation()
+        obs = self.get_obs()
 
         # Robot obs
         robot_obs = self._robot.get_observation()
@@ -124,11 +124,11 @@ class TransitionEnv(SawyerEnv, Serializable):
     def reset(self):
         self._step = 0
         self._goal = self.sample_goal()
-        if self._simulated:
+        if self.simulated:
             self._robot.reset()
             self._world.reset()
 
-        return self.get_observation()
+        return self.get_obs()
 
     def sample_goal(self):
         """
@@ -192,6 +192,7 @@ class TransitionEnv(SawyerEnv, Serializable):
     def has_peg(self):
         gripper_state = self._robot.gripper_state
         gripper_thereshold = -0.5
+        print("has_peg : "+str(gripper_state))
         if gripper_state > gripper_thereshold:
             return False
 
@@ -261,24 +262,25 @@ class TransitionPickEnv(TransitionEnv, Serializable):
             pass
         else:
             peg_position = ob[4:11]
+            print(peg_position)
+
+            # gripper open
+            self._robot._gripper_open()
             
             # move to peg position
-            peg_position[2] += 0.2
-            peg_joint = self._robot._limb.ik_request(peg_position, 'right_hand')
-            self._robot._limb.move_to_joint_positions(peg_joint)
+            peg_position[2] += 0.1
+            self._robot._move_to_target_position(peg_position)
             
             # go down
-            peg_position[2] -= 0.1
-            peg_joint = self._robot._limb.ik_request(peg_position, 'right_hand')
-            self._robot._limb.move_to_joint_positions(peg_joint)
+            peg_position[2] -= 0.07
+            self._robot._move_to_target_position(peg_position)
 
-            # grip
-            self._robot._gripper.close()
+            # gripper close
+            self._robot._gripper_close()
 
             # go up
             peg_position[2] += 0.1
-            peg_joint = self._robot._limb.ik_request(peg_position, 'right_hand')
-            self._robot._limb.move_to_joint_positions(peg_joint)
+            self._robot._move_to_target_position(peg_position)
 
 class TransitionPlaceEnv(TransitionEnv, Serializable):
     def __init__(self,
@@ -326,6 +328,27 @@ class TransitionPlaceEnv(TransitionEnv, Serializable):
             'box': ob[4:11],
             'goal': ob[11:14]
         }
+
+    def act(self, ob):
+        if len(ob.shape) > 1:
+            pass
+        else:
+            random_position = ##
+            print(random_position)
+
+            # move to random position
+            self._robot._move_to_target_position(random_position)
+            
+            # go down
+            random_position[2] -= 0.1
+            self._robot._move_to_target_position(random_position)
+
+            # gripper open
+            self._robot._gripper_open()
+
+            # go up
+            random_position[2] += 0.1
+            self._robot._move_to_target_position(random_position)
 
 
 class TransitionPickAndPlaceEnv(TransitionEnv, Serializable):
