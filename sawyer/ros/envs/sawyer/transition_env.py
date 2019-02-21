@@ -268,18 +268,18 @@ class TransitionPickEnv(TransitionEnv, Serializable):
             self._robot._gripper_open()
             
             # move to peg position
-            peg_position[2] += 0.1
+            peg_position[2] += 0.13
             self._robot._move_to_target_position(peg_position)
             
             # go down
-            peg_position[2] -= 0.07
+            peg_position[2] -= 0.11
             self._robot._move_to_target_position(peg_position)
 
             # gripper close
             self._robot._gripper_close()
 
             # go up
-            peg_position[2] += 0.1
+            peg_position[2] += 0.13
             self._robot._move_to_target_position(peg_position)
 
 class TransitionPlaceEnv(TransitionEnv, Serializable):
@@ -339,14 +339,14 @@ class TransitionPlaceEnv(TransitionEnv, Serializable):
             print(cur_position)
             
             # go down
-            cur_position[2] -= 0.06
+            cur_position[2] -= 0.11
             self._robot._move_to_target_position(cur_position)
 
             # gripper open
             self._robot._gripper_open()
 
             # go up
-            cur_position[2] += 0.1
+            cur_position[2] += 0.11
             self._robot._move_to_target_position(cur_position)
 
 

@@ -3,6 +3,7 @@
 import gym
 from intera_core_msgs.msg import JointLimits
 from geometry_msgs.msg import Pose, Point, Quaternion
+from tf.transformations import quaternion_from_euler, quaternion_multiply
 import intera_interface
 import moveit_msgs.msg
 import numpy as np
@@ -284,12 +285,23 @@ class Sawyer(Robot):
     def _move_to_target_position(self, target_pos):
         if rospy.is_shutdown():
             return
+        # if target_pos is position, set orientation as current orientation
+        # if target_pos is position+orientation, think it as peg position
+        # which means 180 degree rotated in z direction    
+        if len(target_pos) == 3:
+            target_ori = np.array(self.gripper_pose['orientation'])
+        elif len(target_pos) == 7:
+            target_ori = target_pos[3:]
+            q_rot = quaternion_from_euler(0, 0, 3.1416)
+            target_ori = quaternion_multiply(q_rot, target_ori)
+        else:
+            return
+        pose_msg = Pose()
+        pose_msg.position = Point(target_pos[0] + 0.015, target_pos[1]- 0.005, target_pos[2])
+        pose_msg.orientation = Quaternion(target_ori[0], target_ori[1], target_ori[2], target_ori[3])
+
         # ik_request returns valid joint positions if exists, 
         # otherwise returns False.
-        cur_ori = np.array(self.gripper_pose['orientation'])
-        pose_msg = Pose()
-        pose_msg.position = Point(target_pos[0], target_pos[1], target_pos[2])
-        pose_msg.orientation = Quaternion(cur_ori[0], cur_ori[1], cur_ori[2], cur_ori[3])
         joint_angles = self._limb.ik_request(pose_msg, "right_gripper_tip")
         if joint_angles:
             self._limb.move_to_joint_positions(joint_angles)
