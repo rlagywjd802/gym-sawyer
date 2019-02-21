@@ -298,6 +298,8 @@ class TransitionPlaceEnv(TransitionEnv, Serializable):
         self.ob_shape = {"joint": [4], "box": [7], "goal": [3]}
         self.ob_type = self.ob_shape.keys()
 
+        self._goal = self.sample_goal()
+
     def get_obs(self):
         # Robot obs
         robot_obs = self._robot.get_observation()
@@ -333,22 +335,19 @@ class TransitionPlaceEnv(TransitionEnv, Serializable):
         if len(ob.shape) > 1:
             pass
         else:
-            random_position = ##
-            print(random_position)
-
-            # move to random position
-            self._robot._move_to_target_position(random_position)
+            cur_position = ob[:3]
+            print(cur_position)
             
             # go down
-            random_position[2] -= 0.1
-            self._robot._move_to_target_position(random_position)
+            cur_position[2] -= 0.06
+            self._robot._move_to_target_position(cur_position)
 
             # gripper open
             self._robot._gripper_open()
 
             # go up
-            random_position[2] += 0.1
-            self._robot._move_to_target_position(random_position)
+            cur_position[2] += 0.1
+            self._robot._move_to_target_position(cur_position)
 
 
 class TransitionPickAndPlaceEnv(TransitionEnv, Serializable):
