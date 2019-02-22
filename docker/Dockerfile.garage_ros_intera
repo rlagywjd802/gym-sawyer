@@ -6,7 +6,8 @@ RUN /bin/bash -c 'source activate garage && \
   pip install \
     catkin_pkg \
     empy \
-    rospkg'
+    rospkg\
+    h5py'
 
 # Install intera and geometry. The latter is mainly required by the
 # ROS TF (transform) package.
@@ -73,4 +74,3 @@ COPY ./docker/sawyer-robot/intera.sh /root/ros_ws
 #  source activate garage && \
 #  source /opt/ros/kinetic/setup.bash && \
 #  catkin_make -DPYTHON_EXECUTABLE="$(which python)" --pkg get_task_srv'
-
