@@ -257,7 +257,10 @@ class Sawyer(Robot):
         self._limb.set_joint_velocities(joint_angle_cmds)
 
     def _set_limb_joint_torques(self, joint_angle_cmds):
-        self._limb.set_joint_torques(joint_angle_cmds)
+        if self.safety_predict(joint_angle_cmds):
+            self._limb.set_joint_torques(joint_angle_cmds)
+        else:
+            print("safety predict FALSE")
 
     def _set_gripper_state(self, position):
         self._gripper.set_position(position)
@@ -278,11 +281,14 @@ class Sawyer(Robot):
     def _move_to_start_position(self):
         if rospy.is_shutdown():
             return
-        self._limb.move_to_joint_positions(self._initial_joint_pos)
-        self._gripper.close()
-        rospy.sleep(1.0)
+        if self.safety_predict(self._initial_joint_pos):
+            self._limb.move_to_joint_positions(self._initial_joint_pos)
+            self._gripper.close()
+            rospy.sleep(1.0)
+        else:
+            print("safety predict FALSE")
 
-    def _move_to_target_position(self, target_pos):
+    def _move_to_target_position(self, target_pos, is_rotated=True):
         if rospy.is_shutdown():
             return
         # if target_pos is position, set orientation as current orientation
@@ -292,8 +298,9 @@ class Sawyer(Robot):
             target_ori = np.array(self.gripper_pose['orientation'])
         elif len(target_pos) == 7:
             target_ori = target_pos[3:]
-            q_rot = quaternion_from_euler(0, 0, 3.1416)
-            target_ori = quaternion_multiply(q_rot, target_ori)
+            if is_rotated:
+                q_rot = quaternion_from_euler(0, 0, 3.1416)
+                target_ori = quaternion_multiply(q_rot, target_ori)   
         else:
             return
         pose_msg = Pose()
@@ -304,8 +311,11 @@ class Sawyer(Robot):
         # otherwise returns False.
         joint_angles = self._limb.ik_request(pose_msg, "right_gripper_tip")
         if joint_angles:
-            self._limb.move_to_joint_positions(joint_angles)
-        rospy.sleep(1.0)
+            if self.safety_predict(joint_angles):
+                self._limb.move_to_joint_positions(joint_angles)
+                rospy.sleep(1.0)
+            else:
+                print("safety predict FALSE")
 
     def _gripper_open(self):
         self._gripper.open()

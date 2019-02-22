@@ -78,11 +78,13 @@ class TransitionPickAndPlaceTask(ComposableTask):
                  completion_bonus=0):
         self._success_thresh = success_thresh
         self._completion_bonus = completion_bonus
+        print("init")
 
     def compute_reward(self, obs, info):
         return 0
 
     def is_success(self, obs, info):
+        print("in")
         box_pos = obs[4:7]
         released = obs[3]
         goal = obs[11:14]
