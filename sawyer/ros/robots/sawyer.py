@@ -137,13 +137,14 @@ class Sawyer(Robot):
             shape=(len(self.get_observation()),),
             dtype=np.float32)
 
-    def send_command(self, commands):
+    def send_command(self, commands, control_mode=None):
         """
         Send command to sawyer.
 
         :param commands: [float]
                     list of command for different joints and gripper
         """
+        self._control_mode = control_mode
         is_joint_commands = (len(commands) == (len(self._used_joints) + 1)) # +1 for gripper
         commands = np.clip(commands, self.action_space.low, self.action_space.high)
 

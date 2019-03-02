@@ -24,7 +24,7 @@ class TransitionPickTask(ComposableTask):
         box_z = box_pos[2]
         return box_z >= self._obj_lift_target
 
-    def is_terminate(self, obs, success_length, init):
+    def is_terminate(self, obs, init):
         box_pos = obs[4:7]
         box_z = box_pos[2]
         return box_z >= self._obj_lift_target
@@ -62,7 +62,7 @@ class TransitionPlaceTask(ComposableTask):
             abs(box_pos[1] - goal[1]) < max_xy_diff and
             abs(box_pos[2] - goal[2]) < max_z_diff )
 
-    def is_terminate(self, obs, success_length, init):
+    def is_terminate(self, obs, init):
         box_pos = obs[4:7]
         released = obs[3]
         goal = obs[11:14]
@@ -98,7 +98,7 @@ class TransitionPickAndPlaceTask(ComposableTask):
         d = np.linalg.norm(box_pos - goal, axis=-1)
         return released and d < self._success_thresh
 
-    def is_terminate(self, obs, success_length, init):
+    def is_terminate(self, obs, init):
         box_pos = obs[4:7]
         released = obs[3]
         goal = obs[11:14]

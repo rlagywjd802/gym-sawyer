@@ -32,6 +32,8 @@ class TransitionEnv(SawyerEnv, Serializable):
         self._step = 0
         self._collision_penalty = collision_penalty
         self._terminate_on_collision = terminate_on_collision
+        self._config = {}
+        self.control_mode = control_mode
 
         # Initialize moveit to get safety check
         moveit_commander.roscpp_initialize(sys.argv)
@@ -67,12 +69,14 @@ class TransitionEnv(SawyerEnv, Serializable):
         return gym.spaces.Box(high, low, dtype=np.float32)
 
     @rate_limited(STEP_FREQ)
-    def step(self, action):
-        assert action.shape == self.action_space.shape
+    def step(self, action, control_mode=None):
+        #assert action.shape == self.action_space.shape, 'action.shape={} self.action_space.shape={}'.format(action.shape, self.action_space.shape)
+        if control_mode == None:
+            control_mode = self.control_mode
         # assert self._run
 
         # Do the action
-        self._robot.send_command(action)
+        self._robot.send_command(action, control_mode)
         self._step += 1
         obs = self.get_obs()
 
@@ -175,8 +179,8 @@ class TransitionEnv(SawyerEnv, Serializable):
         # WE WILL NOT USE IT
         raise NotImplementedError
 
-    def is_terminate(self, obs, success_length, init=False):
-        return self._active_task.is_terminate(obs, success_length, init)
+    def is_terminate(self, obs, init=False, env=None):
+        return self._active_task.is_terminate(obs, init)
 
     def get_next_primitive(self, obs, prev_primitive):
         return self._active_task.get_next_primitive(obs, prev_primitive)
@@ -257,9 +261,9 @@ class TransitionPickEnv(TransitionEnv, Serializable):
         }
 
     def act(self, ob):
-        if len(ob.shape) > 1:
-            pass
-        else:
+        #if len(ob.shape) > 1:
+        #    pass
+        #else:
             peg_position = ob[4:11]
             print("peg_position: "+str(peg_position))
 
@@ -347,20 +351,11 @@ class TransitionPlaceEnv(TransitionEnv, Serializable):
         }
 
     def act(self, ob):
-        if len(ob.shape) > 1:
-            pass
-        else:
-            cur_position = ob[:3]
-            print("cur_position: "+str(cur_position))
-            
-            # go down
-            cur_position[2] -= 0.03
-            self._robot._move_to_target_position(cur_position)
-            print("go down")
-
-            # gripper open
-            self._robot._gripper_open()
-            print("gripper open")
+        print('ob from act() in place', ob)
+        #if len(ob.shape) > 1:
+        #    pass
+        #else:
+        return np.array([0.0, 0.0, -0.015, -1.0])
 
     def reset(self):
         # move to the hole position
