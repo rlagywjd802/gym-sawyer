@@ -39,7 +39,7 @@ class TransitionPlaceTask(ComposableTask):
     Task to place object at a desired location.
     """
     def __init__(self,
-                 success_thresh=0.01,
+                 success_thresh=0.045,
                  completion_bonus=0):
         self._success_thresh = success_thresh
         self._completion_bonus = completion_bonus
@@ -52,7 +52,15 @@ class TransitionPlaceTask(ComposableTask):
         released = obs[3]
         goal = obs[11:14]
         d = np.linalg.norm(box_pos - goal, axis=-1)
-        return released and d < self._success_thresh
+        print("*****[is success] released:"+str(released)+", box_pos:"+str(box_pos)+", goal:"+str(goal)+", d:"+str(d))
+        #return d < self._success_thresh
+
+        max_xy_diff = 0.015
+        max_z_diff = 0.025
+        print("*****[is success] released:"+str(released)+", box_pos:"+str(box_pos)+", goal:"+str(goal))
+        return ( abs(box_pos[0] - goal[0]) < max_xy_diff and
+            abs(box_pos[1] - goal[1]) < max_xy_diff and
+            abs(box_pos[2] - goal[2]) < max_z_diff )
 
     def is_terminate(self, obs, success_length, init):
         box_pos = obs[4:7]
@@ -84,7 +92,6 @@ class TransitionPickAndPlaceTask(ComposableTask):
         return 0
 
     def is_success(self, obs, info):
-        print("in")
         box_pos = obs[4:7]
         released = obs[3]
         goal = obs[11:14]

@@ -17,42 +17,60 @@ def get_action():
     return action
 
 i = 0
+j = 0
 n = 'N'
-f = h5py.File("/root/code/garage/data/testfile.hdf5", "w")
+f = h5py.File("/root/code/gym-sawyer/data/testfile.hdf5", "w")
 
 observations = []
 while n != '':
     # run pick primitive
-    print("======================")
-    print("Run Pick Primitive")
-    obs = transition_pick_env.get_obs()
-    transition_pick_env.act(obs)
+    if n not in ['2', '3', '4']:
+        print("\n================================================")
+        print("Run Pick Primitive")
+        initial_peg_position = transition_pick_env.get_obs()
+        transition_pick_env.act(initial_peg_position)
+        print(initial_peg_position)
 
     # run transition policy
-    print("======================")
-    print("Run Transition Policy")
-    while i<2:
-        action = get_action()
-        obs, r, done, info = transition_pick_and_place_env.step(action)
-        observations.append(obs)
-        print(action)
-        print(obs) 
-        print(r)
-        print(done)
-        print(info)
-        i += 1
+    if n not in ['1', '3', '4']:
+        print("\n================================================")
+        print("Run Transition Policy")
+        while i<0:
+            action = get_action()
+            obs, r, done, info = transition_pick_and_place_env.step(action)
+            observations.append(obs)
+            print(action)
+            print(obs)
+            print(r)
+            print(done)
+            print(info)
+            i += 1
     
+    done = False    
     # run place primitive
-    print("======================")
-    print("Run Place Primitive")
-    obs = transition_place_env.get_obs()
-    transition_place_env.act(obs)
+    if n not in ['1', '2', '4']:
+        print("\n================================================")
+        print("Run Place Primitive")
+        while j<5 or done:
+            action = np.array([0.0, 0.0, -0.015, -1.0])
+            obs, r, done, info = transition_place_env.step(action)
+            print(action)
+            print(obs) 
+            print(r)
+            print(done)
+            print("has_peg: "+str(info['grasped_peg']))
+            print("is_success: "+str(info['is_success']))
+            j += 1
 
     # reset
-    print("======================")
-    print("Reset")
-    transition_place_env.reset()
+    if n not in ['1', '2', '3']:
+        print("\n================================================")
+        print("Reset")
+        print(initial_peg_position)
+        transition_place_env.reset(info['grasped_peg'], initial_peg_position)
+        
     i = 0
+    j = 0
 
     n = input("-------> Put enter to finish : ")
 

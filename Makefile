@@ -60,6 +60,8 @@ run-garage-nvidia-ros: build-garage-nvidia-ros
 		--net="host" \
 		$(ADD_HOST) \
 		-v $(DATA_PATH)/$(CONTAINER_NAME):/root/code/garage/data \
+		-v $(shell pwd):/root/code/gym-sawyer \
+		-v /home/hyojeong/transition-robot:/root/code/transition-robot \
 		-e MJKEY="$$(cat $(MJKEY_PATH))" \
 		--name $(CONTAINER_NAME) \
 		$(ADD_ARGS) \

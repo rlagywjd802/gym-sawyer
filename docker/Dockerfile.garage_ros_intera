@@ -57,7 +57,7 @@ RUN /bin/bash -c 'packages=(moveit moveit_msgs intera_sdk); \
 # Setup repo
 WORKDIR /root/code/gym-sawyer
 # Add code stub last
-COPY . /root/code/gym-sawyer
+#COPY . /root/code/gym-sawyer
 ENV PYTHONPATH=$PYTHONPATH:/root/code/gym-sawyer
 
 # TODO: REMOVE BEFORE MERGING

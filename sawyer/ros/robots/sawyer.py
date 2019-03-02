@@ -13,13 +13,13 @@ from sawyer.ros.robots.kinematics_interfaces import StateValidity
 from sawyer.ros.robots.robot import Robot
 
 INITIAL_JOINT_STATE = {
-    'right_j0': -0.140923828125,
-    'right_j1': -1.2789248046875,
-    'right_j2': -3.043166015625,
-    'right_j3': -2.139623046875,
-    'right_j4': -0.047607421875,
-    'right_j5': -0.7052822265625,
-    'right_j6': -1.4102060546875,
+    'right_j0': -0.3488310546875, 
+    'right_j1': -1.391796875, 
+    'right_j2': -2.85933203125, 
+    'right_j3': -1.9154091796875, 
+    'right_j4': -0.10871484375, 
+    'right_j5': -1.0706103515625, 
+    'right_j6': -1.372890625
 }
 
 class Sawyer(Robot):
@@ -304,7 +304,8 @@ class Sawyer(Robot):
         else:
             return
         pose_msg = Pose()
-        pose_msg.position = Point(target_pos[0] + 0.015, target_pos[1]- 0.005, target_pos[2])
+        # pose_msg.position = Point(target_pos[0] + 0.015, target_pos[1]- 0.005, target_pos[2])
+        pose_msg.position = Point(target_pos[0], target_pos[1], target_pos[2])
         pose_msg.orientation = Quaternion(target_ori[0], target_ori[1], target_ori[2], target_ori[3])
 
         # ik_request returns valid joint positions if exists, 
