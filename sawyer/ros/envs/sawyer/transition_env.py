@@ -76,6 +76,7 @@ class TransitionEnv(SawyerEnv, Serializable):
         # assert self._run
 
         # Do the action
+        print('step function with control mode ({})'.format(control_mode))
         self._robot.send_command(action, control_mode)
         self._step += 1
         obs = self.get_obs()
@@ -105,7 +106,6 @@ class TransitionEnv(SawyerEnv, Serializable):
         r = 0
         done = False
         successful = False
-        print(self._active_task)
 
         if self._active_task.is_success(obs, info):            
             r += self._active_task.completion_bonus
@@ -231,6 +231,7 @@ class TransitionPickEnv(TransitionEnv, Serializable):
         self.reward_type = []
         self.ob_shape = {"joint": [4], "box": [7]}
         self.ob_type = self.ob_shape.keys()
+        self.control_mode = control_mode
 
     def get_obs(self):
         # Robot obs
@@ -261,45 +262,45 @@ class TransitionPickEnv(TransitionEnv, Serializable):
         }
 
     def act(self, ob):
-        #if len(ob.shape) > 1:
-        #    pass
-        #else:
-            peg_position = ob[4:11]
-            print("peg_position: "+str(peg_position))
+        print("\tSawyerPick start")
+        peg_position = ob[4:11]
+        print("\tpeg_position: "+str(peg_position))
 
-            # gripper open
-            self._robot._gripper_open()
-            print("gripper open")
-            
-            # move to the peg position
-            peg_position[2] += 0.13
-            self._robot._move_to_target_position(peg_position)
-            print("move to the peg position")
+        # gripper open
+        self._robot._gripper_open()
+        print("\tgripper open")
+        
+        # move to the peg position
+        peg_position[2] += 0.13
+        self._robot._move_to_target_position(peg_position)
+        print("\tmove to the peg position")
 
-            # go down
-            peg_position[2] -= 0.11
-            self._robot._move_to_target_position(peg_position)
-            print("go down")
+        # go down
+        peg_position[2] -= 0.11
+        self._robot._move_to_target_position(peg_position)
+        print("\tgo down")
 
-            # gripper close
-            self._robot._gripper_close()
-            print("gripper close")
+        # gripper close
+        self._robot._gripper_close()
+        print("\tgripper close")
 
-            # go up
-            peg_position[2] += 0.13
-            self._robot._move_to_target_position(peg_position)
-            print("go up")
+        # go up
+        peg_position[2] += 0.13
+        self._robot._move_to_target_position(peg_position)
+        print("\tgo up")
 
-            # move to the hole position
-            hole_position = [0.701, -0.010, 0.170, 1.0, 0.0, 0.0, 0.0]
-            hole_position[2] += 0.1
-            self._robot._move_to_target_position(hole_position)
-            print("move to the hole position")
+        # move to the hole position
+        hole_position = [0.701, -0.010, 0.170, 1.0, 0.0, 0.0, 0.0]
+        hole_position[2] += 0.1
+        self._robot._move_to_target_position(hole_position)
+        print("\tmove to the hole position")
 
-            # go down
-            hole_position[2] -= 0.03
-            self._robot._move_to_target_position(hole_position)
-            print("go down")
+        # go down
+        hole_position[2] -= 0.03
+        self._robot._move_to_target_position(hole_position)
+        print("\tgo down")
+        print("\tSawyerPick end")
+        return np.array([0.0, 0.0, 0.0, 0.0])
 
 class TransitionPlaceEnv(TransitionEnv, Serializable):
     def __init__(self,
@@ -316,6 +317,7 @@ class TransitionPlaceEnv(TransitionEnv, Serializable):
         self.reward_type = []
         self.ob_shape = {"joint": [4], "box": [7], "goal": [3]}
         self.ob_type = self.ob_shape.keys()
+        self.control_mode = control_mode
 
         self._goal = self.sample_goal()
 
@@ -351,10 +353,6 @@ class TransitionPlaceEnv(TransitionEnv, Serializable):
         }
 
     def act(self, ob):
-        print('ob from act() in place', ob)
-        #if len(ob.shape) > 1:
-        #    pass
-        #else:
         return np.array([0.0, 0.0, -0.015, -1.0])
 
     def reset(self):
@@ -376,7 +374,7 @@ class TransitionPickAndPlaceEnv(TransitionEnv, Serializable):
                  simulated=False,
                  collision_penalty=0.,
                  terminate_on_collision=True,
-                 control_mode='task_space'):
+                 control_mode='effort'):
         TransitionEnv.__init__(self, simulated=simulated,
                                collision_penalty=collision_penalty,
                                terminate_on_collision=terminate_on_collision,
@@ -386,6 +384,7 @@ class TransitionPickAndPlaceEnv(TransitionEnv, Serializable):
         self.reward_type = []
         self.ob_shape = {"joint": [4], "box": [7], "goal": [3]}
         self.ob_type = self.ob_shape.keys()
+        self.control_mode = control_mode
 
         self._goal = self.sample_goal()
 
