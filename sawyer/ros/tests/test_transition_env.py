@@ -19,17 +19,17 @@ def get_action():
 i = 0
 j = 0
 n = 'N'
-f = h5py.File("/root/code/gym-sawyer/data/testfile.hdf5", "w")
+f = h5py.File("/root/code/transition-robot/gym-sawyer/data/testfile.hdf5", "w")
 
 observations = []
+
 while n != '':
     # run pick primitive
     if n not in ['2', '3', '4']:
         print("\n================================================")
         print("Run Pick Primitive")
-        initial_peg_position = transition_pick_env.get_obs()
-        transition_pick_env.act(initial_peg_position)
-        print(initial_peg_position)
+        inital_obs = transition_pick_env.get_obs()
+        transition_pick_env.act(inital_obs)
 
     # run transition policy
     if n not in ['1', '3', '4']:
@@ -51,7 +51,7 @@ while n != '':
     if n not in ['1', '2', '4']:
         print("\n================================================")
         print("Run Place Primitive")
-        while j<5 or done:
+        while not done:
             action = np.array([0.0, 0.0, -0.015, -1.0])
             obs, r, done, info = transition_place_env.step(action)
             print(action)
@@ -60,14 +60,15 @@ while n != '':
             print(done)
             print("has_peg: "+str(info['grasped_peg']))
             print("is_success: "+str(info['is_success']))
+            print("is_done: "+str(info['d']))
             j += 1
 
     # reset
     if n not in ['1', '2', '3']:
         print("\n================================================")
         print("Reset")
-        print(initial_peg_position)
-        transition_place_env.reset(info['grasped_peg'], initial_peg_position)
+        print(inital_obs)
+        transition_place_env.reset(inital_obs)
         
     i = 0
     j = 0
