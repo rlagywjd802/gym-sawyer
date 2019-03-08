@@ -1,5 +1,6 @@
 import collections
 import os.path as osp
+import time
 
 from gazebo_msgs.msg import ModelStates
 from geometry_msgs.msg import (Point, Pose, PoseStamped, Quaternion,
@@ -12,7 +13,7 @@ from sawyer.ros.worlds.gazebo import Gazebo
 from sawyer.ros.worlds.world import World
 import sawyer.garage.misc.logger as logger
 
-class BoxWithLid:    
+class BoxWithLid:
 
     class Lid:
         def __init__(self, name, init_pose, hole_name):
@@ -47,13 +48,13 @@ class BoxWithLid:
 
         @orientation.setter
         def orientation(self, value):
-            self._pose.orientation = value 
+            self._pose.orientation = value
 
     def __init__(self, name, init_pose, lid_name, lid_init_pose, hole_name, resource=None):
         self._name = name
-        self._resource = resource                 
+        self._resource = resource
         self._initial_pose = init_pose
-        self._pose = Pose(init_pose.position, init_pose.orientation)        
+        self._pose = Pose(init_pose.position, init_pose.orientation)
         self._lid = self.Lid(lid_name, lid_init_pose, hole_name)
 
     @property
@@ -82,11 +83,11 @@ class BoxWithLid:
 
     @orientation.setter
     def orientation(self, value):
-        self._pose.orientation = value     
+        self._pose.orientation = value
 
     @property
     def observation_space(self):
-        return gym.spaces.Box(np.inf, -np.inf, shape=(6,), dtype=np.float32)   
+        return gym.spaces.Box(np.inf, -np.inf, shape=(6,), dtype=np.float32)
 
     @property
     def lid(self):
@@ -123,7 +124,7 @@ class BlockPeg:
     def __init__(self, name, init_pose, resource=None):
         self._name = name
         self._resource = resource
-        self._initial_pose = init_pose 
+        self._initial_pose = init_pose
         self._pose = Pose(init_pose.position, init_pose.orientation)
 
     @property
@@ -214,7 +215,7 @@ class ToyWorld(World):
                 init_pose=Pose(Point(0.756, -0.042, 0.007), Quaternion(0, 0, 0, 1)),
                 lid_name='lid',
                 lid_init_pose=Pose(Point(0.751, -0.037, 0.130), Quaternion(0, 0, 0, 1)),
-                hole_name='hole',                
+                hole_name='hole',
                 resource=osp.join(World.MODEL_DIR, 'box_with_lid/model.urdf'))
             self._box = box
 
@@ -225,7 +226,7 @@ class ToyWorld(World):
                 osp.join(World.MODEL_DIR, 'peg/model.urdf'))
             peg = BlockPeg(
                 name='peg',
-                init_pose=Pose(Point((0.793, 0.293, 0.092), Quaternion(0, 0, 0, 1))), 
+                init_pose=Pose(Point((0.793, 0.293, 0.092), Quaternion(0, 0, 0, 1))),
                 resource=osp.join(World.MODEL_DIR, 'block_peg/model.urdf'))
             self._peg = peg
 
@@ -236,16 +237,16 @@ class ToyWorld(World):
         else:
             self._tf_listener = TransformListener()
             box_name = 'box'
-            lid_name = 'lid'
+            lid_name = 'lid_at'
             peg_name = 'peg'
             hole_name = 'hole'
-              
+
             box_init_pose = self.get_box_pose(box_name)
             lid_init_pose = self.get_lid_pose(lid_name)
             box = BoxWithLid(box_name, box_init_pose, lid_name, lid_init_pose, hole_name)
             self._box = box
 
-            peg_init_pose = self.get_peg_pose(peg_name)               
+            peg_init_pose = self.get_peg_pose(peg_name)
             peg = BlockPeg(peg_name, peg_init_pose)
             self._peg = peg
 
@@ -319,7 +320,7 @@ class ToyWorld(World):
                         box_pose = self.get_box_pose()
                         self._box.position = box_pose.position
                         self._box.orientation = box_pose.orientation
-                        
+
                         lid_pose = self.get_lid_pose()
                         self._box.lid.position = lid_pose.position
                         self._box.lid.orientation = lid_pose.orientation
@@ -329,7 +330,7 @@ class ToyWorld(World):
                         self._peg.position = peg_pose.position
                         self._peg.orientation = peg_pose.orientation
 
-                
+
         obs = {}
         objs = [self._box, self._peg]
         for obj in objs:
@@ -348,12 +349,12 @@ class ToyWorld(World):
         #Get transform base -> box
         box_pos, box_ori = self._tf_listener.lookupTransform(
             self._base_frame, box_frame, rospy.Time(0))
-        
+
         box_pos = Point(box_pos[0], box_pos[1], box_pos[2])
         box_ori = Quaternion(box_ori[0], box_ori[1], box_ori[2], box_ori[3])
         return Pose(box_pos, box_ori)
 
-    def get_lid_pose(self, lid_frame=None):        
+    def get_lid_pose(self, lid_frame=None):
         lid_pos = None
         lid_ori = None
         if lid_frame is None:
@@ -365,17 +366,17 @@ class ToyWorld(World):
         #Get transform base -> lid
         lid_pos, lid_ori = self._tf_listener.lookupTransform(
             self._base_frame, lid_frame, rospy.Time(0))
-        
+
         lid_pos = Point(lid_pos[0], lid_pos[1], lid_pos[2])
         lid_ori = Quaternion(lid_ori[0], lid_ori[1], lid_ori[2], lid_ori[3])
         return Pose(lid_pos, lid_ori)
 
-    def get_peg_pose(self, peg_frame=None):        
+    def get_peg_pose(self, peg_frame=None):
         peg_pos = None
         peg_ori = None
         if peg_frame is None:
             peg_frame = self._peg.name
-        
+
         #Wait for transform base -> peg
         self._tf_listener.waitForTransform(
             self._base_frame, peg_frame, rospy.Time(0), rospy.Duration(2))
@@ -391,10 +392,10 @@ class ToyWorld(World):
         if hole_frame is None:
             hole_frame = self._box.lid.hole_name
         self._tf_listener.waitForTransform(
-            self._base_frame, hole_frame, rospy.Time(0), rospy.Duration(2))        
+            self._base_frame, hole_frame, rospy.Time(0), rospy.Duration(2))
         hole_pos, hole_ori = self._tf_listener.lookupTransform(
             self._base_frame, hole_frame, rospy.Time(0))
-        
+
         hole_pos = Point(hole_pos[0], hole_pos[1], hole_pos[2])
         hole_ori = Quaternion(hole_ori[0], hole_ori[1], hole_ori[2], hole_ori[3])
         return Pose(hole_pos, hole_ori)
