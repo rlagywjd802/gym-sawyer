@@ -50,8 +50,9 @@ run-garage-nvidia-ros: CONTAINER_NAME ?= garage-nvidia-ros
 run-garage-nvidia-ros: build-garage-nvidia-ros
 	xhost +local:docker
 	docker run \
+		--privileged \
 		--init \
-		-it \
+		-it\
 		--rm \
 		--runtime=nvidia \
 		-v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -60,7 +61,6 @@ run-garage-nvidia-ros: build-garage-nvidia-ros
 		--net="host" \
 		$(ADD_HOST) \
 		-v $(DATA_PATH)/$(CONTAINER_NAME):/root/code/garage/data \
-		-v $(shell pwd):/root/code/gym-sawyer \
 		-v /home/hyojeong/transition-robot:/root/code/transition-robot \
 		-e MJKEY="$$(cat $(MJKEY_PATH))" \
 		--name $(CONTAINER_NAME) \

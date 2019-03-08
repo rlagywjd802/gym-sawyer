@@ -7,7 +7,8 @@ RUN /bin/bash -c 'source activate garage && \
     catkin_pkg \
     empy \
     rospkg\
-    h5py'
+    h5py\
+    moviepy'
 
 # Install intera and geometry. The latter is mainly required by the
 # ROS TF (transform) package.
@@ -55,10 +56,10 @@ RUN /bin/bash -c 'packages=(moveit moveit_msgs intera_sdk); \
   done'
 
 # Setup repo
-WORKDIR /root/code/gym-sawyer
+WORKDIR /root/code/transition-robot/gym-sawyer
 # Add code stub last
 #COPY . /root/code/gym-sawyer
-ENV PYTHONPATH=$PYTHONPATH:/root/code/gym-sawyer
+ENV PYTHONPATH=$PYTHONPATH:/root/code/transition-robot/gym-sawyer
 
 # TODO: REMOVE BEFORE MERGING
 RUN DEBIAN_FRONTEND=noninteractive apt -y install \
