@@ -63,9 +63,9 @@ class TransitionEnv(SawyerEnv, Serializable):
         print(world_obs)
         self._goal = np.concatenate((world_obs['box_lid_position'],
                                     np.array([1.0, 0.0, 0.0, 0.0])))
-        self._goal[0] += 0.71249374 - 0.68462208
-        self._goal[1] += -0.01085951 - 0.05591729
-        self._goal[2] += 0.18536126 - 0.12475339
+        self._goal[0] += 0.61036 - 0.65102
+        self._goal[1] += -0.04772 + 0.05355
+        self._goal[2] += 0.18557 - 0.1019
         print('New goal position: {}'.format(self._goal))
 
     @property
@@ -90,7 +90,7 @@ class TransitionEnv(SawyerEnv, Serializable):
         if control_mode == 'effort':
             action[-1] = 0
         # Do the action
-        print('step function with action ({}) and control mode ({}) and active_task ({})'.format(action, control_mode, self._active_task))
+        print('step function with action ({}) and control mode ({})'.format(action, control_mode))
         self._robot.send_command(action, control_mode)
         self._step += 1
         obs = self.get_obs()
@@ -278,7 +278,7 @@ class TransitionPickEnv(TransitionEnv, Serializable):
         print("\tgripper close")
 
         # go up
-        peg_position[2] = 0.240
+        peg_position[2] = 0.25
         self._robot._move_to_target_position(peg_position)
         print("\tgo up")
 
@@ -399,6 +399,7 @@ class TransitionPickAndPlaceEnv(TransitionEnv, Serializable):
                 init_position[2] -= 0.01
                 self._robot._move_to_target_position(init_position)
                 print("\tgo down")
+                obs = self.get_obs()
                 t += 1
 
             # gripper open

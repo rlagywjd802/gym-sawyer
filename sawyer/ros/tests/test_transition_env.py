@@ -59,7 +59,7 @@ while n != '':
             print(r)
             print(done)
             print("has_peg: "+str(info['grasped_peg']))
-            print("is_success: "+str(info['is_success']))
+            print("is_success: "+str(info['success']))
             print("is_done: "+str(info['d']))
             j += 1
 
@@ -68,7 +68,7 @@ while n != '':
         print("\n================================================")
         print("Reset")
         print(inital_obs)
-        transition_place_env.reset(inital_obs)
+        transition_pick_and_place_env.reset()
         
     i = 0
     j = 0
